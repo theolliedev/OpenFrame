@@ -10,12 +10,20 @@ import {
   verifyR2UploadToken,
 } from '@/lib/r2-upload-token';
 import {
+  abortMultipartVideoUpload,
+  createMultipartVideoUpload,
   createPresignedImagePutUrl,
+  createPresignedUploadPartUrl,
   createPresignedVideoPutUrl,
   deleteR2Object,
   deleteVideoObject,
 } from '@/lib/r2';
-import { getMaxVideoUploadBytes, isS3VideoUploadsEnabled } from '@/lib/feature-flags';
+import {
+  getMaxVideoUploadBytes,
+  getR2MultipartPartSizeBytes,
+  getR2MultipartThresholdBytes,
+  isS3VideoUploadsEnabled,
+} from '@/lib/feature-flags';
 import {
   buildVideoObjectKey,
   getVideoExtensionFromMime,
@@ -133,13 +141,52 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const thumbnailObjectKey = `images/${thumbnailFilename}`;
     const thumbnailProxyUrl = `/api/upload/image/${thumbnailFilename}`;
 
-    let presignedPutUrl: string;
+    const useMultipart = sizeBytes > getR2MultipartThresholdBytes();
+
+    let presignedPutUrl = '';
     let thumbnailPresignedPutUrl: string;
+    let multipartUploadId: string | null = null;
+    let multipart: {
+      uploadId: string;
+      partSizeBytes: number;
+      parts: Array<{ partNumber: number; url: string }>;
+    } | null = null;
+
     try {
-      [presignedPutUrl, thumbnailPresignedPutUrl] = await Promise.all([
-        createPresignedVideoPutUrl(objectKey, contentType, sizeBytes),
-        createPresignedImagePutUrl(thumbnailObjectKey, 'image/jpeg'),
-      ]);
+      if (useMultipart) {
+        const partSize = getR2MultipartPartSizeBytes();
+        const partCount = Number((sizeBytes + partSize - BigInt(1)) / partSize);
+
+        multipartUploadId = await createMultipartVideoUpload(objectKey, contentType);
+
+        try {
+          const [parts, thumbnailUrl] = await Promise.all([
+            Promise.all(
+              Array.from({ length: partCount }, async (_unused, index) => {
+                const partNumber = index + 1;
+                const url = await createPresignedUploadPartUrl(
+                  objectKey,
+                  multipartUploadId as string,
+                  partNumber
+                );
+                return { partNumber, url };
+              })
+            ),
+            createPresignedImagePutUrl(thumbnailObjectKey, 'image/jpeg'),
+          ]);
+
+          multipart = { uploadId: multipartUploadId, partSizeBytes: Number(partSize), parts };
+          thumbnailPresignedPutUrl = thumbnailUrl;
+        } catch (error) {
+          await abortMultipartVideoUpload(objectKey, multipartUploadId).catch(() => undefined);
+          throw error;
+        }
+      } else {
+        [presignedPutUrl, thumbnailPresignedPutUrl] = await Promise.all([
+          createPresignedVideoPutUrl(objectKey, contentType, sizeBytes),
+          createPresignedImagePutUrl(thumbnailObjectKey, 'image/jpeg'),
+        ]);
+      }
     } catch (error) {
       await releaseStorageReservation(reserveResult.reservationId, project.workspace.ownerId);
       logError('Failed to create presigned video upload URL:', error);
@@ -159,6 +206,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       reservationId: reserveResult.reservationId,
       uploadJti,
       expiresAt,
+      multipartUploadId,
     });
 
     const uploadToken = createR2UploadToken({
@@ -180,6 +228,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       thumbnailPresignedPutUrl,
       thumbnailObjectKey,
       thumbnailProxyUrl,
+      multipart,
     });
 
     return withCacheControl(response, 'private, no-store');
@@ -252,6 +301,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
         reservationId: true,
         billedUserId: true,
         thumbnailObjectKey: true,
+        multipartUploadId: true,
       },
     });
     if (!uploadSession) {
@@ -278,6 +328,9 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     try {
       await Promise.all([
+        uploadSession.multipartUploadId
+          ? abortMultipartVideoUpload(objectKey, uploadSession.multipartUploadId)
+          : Promise.resolve(),
         deleteVideoObject(objectKey),
         uploadSession.thumbnailObjectKey.startsWith('images/')
           ? deleteR2Object(uploadSession.thumbnailObjectKey)

@@ -1,5 +1,8 @@
 import {
+  AbortMultipartUploadCommand,
+  CompleteMultipartUploadCommand,
   CreateBucketCommand,
+  CreateMultipartUploadCommand,
   DeleteObjectCommand,
   GetObjectCommand,
   GetBucketCorsCommand,
@@ -7,6 +10,7 @@ import {
   HeadObjectCommand,
   PutBucketCorsCommand,
   PutObjectCommand,
+  UploadPartCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -288,6 +292,94 @@ export async function createPresignedVideoPutUrl(
   });
 
   return getSignedUrl(getOrCreateR2PresignClient(), command, { expiresIn: expiresInSeconds });
+}
+
+export async function createMultipartVideoUpload(
+  key: string,
+  contentType: string
+): Promise<string> {
+  if (!key.startsWith(VIDEO_OBJECT_KEY_PREFIX)) {
+    throw new Error('Invalid video object key');
+  }
+
+  const result = await r2Client.send(
+    new CreateMultipartUploadCommand({
+      Bucket: R2_BUCKET_NAME,
+      Key: key,
+      ContentType: contentType,
+    })
+  );
+
+  if (!result.UploadId) {
+    throw new Error('Failed to create multipart upload');
+  }
+
+  return result.UploadId;
+}
+
+export async function createPresignedUploadPartUrl(
+  key: string,
+  uploadId: string,
+  partNumber: number,
+  expiresInSeconds = DEFAULT_PRESIGNED_PUT_TTL_SECONDS
+): Promise<string> {
+  if (!key.startsWith(VIDEO_OBJECT_KEY_PREFIX)) {
+    throw new Error('Invalid video object key');
+  }
+
+  if (!Number.isInteger(partNumber) || partNumber < 1 || partNumber > 10000) {
+    throw new Error('Invalid part number');
+  }
+
+  const command = new UploadPartCommand({
+    Bucket: R2_BUCKET_NAME,
+    Key: key,
+    UploadId: uploadId,
+    PartNumber: partNumber,
+  });
+
+  return getSignedUrl(getOrCreateR2PresignClient(), command, { expiresIn: expiresInSeconds });
+}
+
+export async function completeMultipartVideoUpload(
+  key: string,
+  uploadId: string,
+  parts: Array<{ partNumber: number; etag: string }>
+): Promise<void> {
+  if (!key.startsWith(VIDEO_OBJECT_KEY_PREFIX)) {
+    throw new Error('Invalid video object key');
+  }
+
+  if (parts.length === 0) {
+    throw new Error('No parts provided for multipart completion');
+  }
+
+  const orderedParts = [...parts]
+    .sort((a, b) => a.partNumber - b.partNumber)
+    .map((part) => ({ PartNumber: part.partNumber, ETag: part.etag }));
+
+  await r2Client.send(
+    new CompleteMultipartUploadCommand({
+      Bucket: R2_BUCKET_NAME,
+      Key: key,
+      UploadId: uploadId,
+      MultipartUpload: { Parts: orderedParts },
+    })
+  );
+}
+
+export async function abortMultipartVideoUpload(key: string, uploadId: string): Promise<void> {
+  if (!key.startsWith(VIDEO_OBJECT_KEY_PREFIX)) {
+    throw new Error('Invalid video object key');
+  }
+
+  await r2Client.send(
+    new AbortMultipartUploadCommand({
+      Bucket: R2_BUCKET_NAME,
+      Key: key,
+      UploadId: uploadId,
+    })
+  );
 }
 
 export async function createPresignedImagePutUrl(

@@ -97,3 +97,36 @@ export function getMaxVideoUploadBytes(): bigint {
 export function isInviteCodeRequired() {
   return readBooleanEnv('OPENFRAME_REQUIRE_INVITE_CODE', true);
 }
+
+function parseBigIntEnv(name: string, defaultValue: bigint, minValue?: bigint): bigint {
+  const raw = process.env[name]?.trim();
+  if (!raw) return defaultValue;
+
+  try {
+    const parsed = BigInt(raw);
+    if (parsed <= BigInt(0)) return defaultValue;
+    if (minValue !== undefined && parsed < minValue) return minValue;
+    return parsed;
+  } catch {
+    return defaultValue;
+  }
+}
+
+// Files larger than this use S3 multipart upload (chunked) instead of a single PUT.
+// Default 90 MiB keeps each request under the common 100 MB Cloudflare proxy/tunnel cap.
+export function getR2MultipartThresholdBytes(): bigint {
+  return parseBigIntEnv(
+    'OPENFRAME_R2_MULTIPART_THRESHOLD_BYTES',
+    BigInt(90) * BigInt(1024) * BigInt(1024)
+  );
+}
+
+// Size of each multipart chunk. Clamped to the S3 minimum of 5 MiB for non-final parts.
+export function getR2MultipartPartSizeBytes(): bigint {
+  const minPartSize = BigInt(5) * BigInt(1024) * BigInt(1024);
+  return parseBigIntEnv(
+    'OPENFRAME_R2_MULTIPART_PART_SIZE_BYTES',
+    BigInt(32) * BigInt(1024) * BigInt(1024),
+    minPartSize
+  );
+}

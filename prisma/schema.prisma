@@ -724,6 +724,7 @@ model VideoUploadSession {
   declaredSizeBytes  BigInt              @map("declared_size_bytes")
   contentType        String              @map("content_type")
   reservationId      String?             @map("reservation_id")
+  multipartUploadId  String?             @map("multipart_upload_id")
   expiresAt          DateTime            @map("expires_at")
   status             UploadSessionStatus @default(INITIATED)
   consumedAt         DateTime?           @map("consumed_at")

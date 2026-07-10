@@ -11,6 +11,7 @@ export type CreateR2UploadSessionInput = {
   reservationId: string | null;
   uploadJti: string;
   expiresAt: Date;
+  multipartUploadId?: string | null;
 };
 
 export async function createR2UploadSession(input: CreateR2UploadSessionInput) {
@@ -26,6 +27,7 @@ export async function createR2UploadSession(input: CreateR2UploadSessionInput) {
       reservationId: input.reservationId,
       uploadJti: input.uploadJti,
       expiresAt: input.expiresAt,
+      multipartUploadId: input.multipartUploadId ?? null,
     },
   });
 }
