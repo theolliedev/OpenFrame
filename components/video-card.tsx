@@ -18,6 +18,7 @@ import {
   Trash2,
   CheckSquare,
   Check,
+  FolderInput,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -55,6 +56,7 @@ import {
   type VideoSource,
 } from '@/lib/video-providers';
 import { resolvePublicBunnyCdnHostname } from '@/lib/bunny-cdn';
+import { MoveVideosDialog } from '@/components/move-videos-dialog';
 import { cn } from '@/lib/utils';
 
 interface VideoCardProps {
@@ -110,6 +112,9 @@ export function VideoCard({
   // Delete dialog
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Move dialog
+  const [showMoveDialog, setShowMoveDialog] = useState(false);
   const bunnyCdnHostname = useMemo(() => resolvePublicBunnyCdnHostname(), []);
   const resolvedThumbnailUrl = useMemo(() => {
     if (!video.thumbnailUrl) return '';
@@ -409,6 +414,10 @@ export function VideoCard({
                       <Plus className="mr-2 h-4 w-4" />
                       Add Version
                     </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => setShowMoveDialog(true)}>
+                      <FolderInput className="mr-2 h-4 w-4" />
+                      Move to project
+                    </DropdownMenuItem>
                     <DropdownMenuItem
                       className="text-destructive"
                       onSelect={() => setShowDeleteDialog(true)}
@@ -576,6 +585,15 @@ export function VideoCard({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Move to another project */}
+      <MoveVideosDialog
+        open={showMoveDialog}
+        onOpenChange={setShowMoveDialog}
+        projectId={projectId}
+        videoIds={[video.id]}
+        onMoved={() => onDeleted?.(video.id)}
+      />
     </>
   );
 }

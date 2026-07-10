@@ -19,6 +19,7 @@ import {
   Loader2,
   Trash2,
   ChevronDown,
+  FolderInput,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -42,6 +43,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { VideoCard } from '@/components/video-card';
 import { VideoDragDropUploader } from '@/components/video-drag-drop-uploader';
+import { MoveVideosDialog } from '@/components/move-videos-dialog';
 import type { DirectUploadProvider } from '@/components/video-page/types';
 import {
   runProjectDownloadManifest,
@@ -105,6 +107,7 @@ export function ProjectContentClient({
   const [isDownloading, setIsDownloading] = useState(false);
   const [isDeletingSelected, setIsDeletingSelected] = useState(false);
   const [showDeleteSelectedDialog, setShowDeleteSelectedDialog] = useState(false);
+  const [showMoveSelectedDialog, setShowMoveSelectedDialog] = useState(false);
 
   const canSelectVideos = canDownloadProject || canEdit;
 
@@ -136,6 +139,13 @@ export function ProjectContentClient({
   const handleVideoDeleted = useCallback((videoId: string) => {
     setLocalVideos((prev) => prev.filter((video) => video.id !== videoId));
     setSelectedVideoIds((prev) => prev.filter((id) => id !== videoId));
+  }, []);
+
+  const handleVideosMoved = useCallback((movedIds: string[]) => {
+    const moved = new Set(movedIds);
+    setLocalVideos((prev) => prev.filter((video) => !moved.has(video.id)));
+    setSelectedVideoIds([]);
+    setSelectionMode(false);
   }, []);
 
   const toggleVideoSelection = useCallback((videoId: string, selected: boolean) => {
@@ -449,6 +459,17 @@ export function ProjectContentClient({
             )}
             {canEdit && (
               <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowMoveSelectedDialog(true)}
+                disabled={selectedCount === 0 || isDeletingSelected}
+              >
+                <FolderInput className="h-4 w-4 mr-2" />
+                Move to project
+              </Button>
+            )}
+            {canEdit && (
+              <Button
                 variant="destructive"
                 size="sm"
                 onClick={() => setShowDeleteSelectedDialog(true)}
@@ -561,6 +582,14 @@ export function ProjectContentClient({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <MoveVideosDialog
+        open={showMoveSelectedDialog}
+        onOpenChange={setShowMoveSelectedDialog}
+        projectId={projectId}
+        videoIds={selectedVideoIds}
+        onMoved={handleVideosMoved}
+      />
     </>
   );
 }
