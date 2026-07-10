@@ -822,7 +822,7 @@ export default function CompareVersionsPageClient({
                                 </button>
                               </div>
                               {comment.content && (
-                                <p className="text-muted-foreground leading-relaxed">
+                                <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap break-words">
                                   {comment.content}
                                 </p>
                               )}
