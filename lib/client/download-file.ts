@@ -13,6 +13,12 @@ const MIME_EXTENSION_MAP: Record<string, string> = {
   'video/x-msvideo': 'avi',
 };
 
+export type DownloadProgress = {
+  receivedBytes: number;
+  /** null when the server didn't send a Content-Length. */
+  totalBytes: number | null;
+};
+
 export function extensionFromUrl(url: string): string {
   const path = url.split('?')[0] ?? url;
   const dot = path.lastIndexOf('.');
@@ -25,6 +31,22 @@ function replaceExtension(fileName: string, ext: string): string {
   const dot = fileName.lastIndexOf('.');
   const stem = dot > 0 ? fileName.slice(0, dot) : fileName;
   return `${stem}.${ext}`;
+}
+
+export function formatBytes(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes <= 0) return '0 MB';
+  const mb = bytes / (1024 * 1024);
+  if (mb < 1024) return `${mb.toFixed(mb < 10 ? 1 : 0)} MB`;
+  return `${(mb / 1024).toFixed(2)} GB`;
+}
+
+export function downloadProgressLabel(progress: DownloadProgress): string {
+  const { receivedBytes, totalBytes } = progress;
+  if (totalBytes && totalBytes > 0) {
+    const pct = Math.min(100, Math.floor((receivedBytes / totalBytes) * 100));
+    return `${pct}% · ${formatBytes(receivedBytes)} / ${formatBytes(totalBytes)}`;
+  }
+  return formatBytes(receivedBytes);
 }
 
 export function saveBlobAs(blob: Blob, fileName: string): void {
@@ -45,12 +67,20 @@ export function saveBlobAs(blob: Blob, fileName: string): void {
  * CDN sources we pull the bytes (CORS is open on them) and save the blob, which
  * lets us control the name and derive the real extension from the content type.
  *
+ * The body is streamed through a counting transform so `onProgress` can report
+ * live progress; the Blob itself is assembled by the browser (which can back
+ * large blobs on disk) rather than accumulated in the JS heap.
+ *
  * Returns `false` (without downloading) when the file is larger than
- * MAX_NAMED_DOWNLOAD_BYTES — buffering that in memory would be unsafe — or when
- * the fetch isn't usable, so the caller can fall back to a plain navigation.
- * Returns `true` when the named blob was saved.
+ * MAX_NAMED_DOWNLOAD_BYTES — buffering that would be unsafe — or when the fetch
+ * isn't usable, so the caller can fall back to a plain navigation. Returns
+ * `true` when the named blob was saved.
  */
-export async function downloadNamedFile(url: string, fileName: string): Promise<boolean> {
+export async function downloadNamedFile(
+  url: string,
+  fileName: string,
+  onProgress?: (progress: DownloadProgress) => void
+): Promise<boolean> {
   let res: Response;
   try {
     res = await fetch(url, { cache: 'no-store' });
@@ -59,20 +89,52 @@ export async function downloadNamedFile(url: string, fileName: string): Promise<
   }
   if (!res.ok) return false;
 
-  const contentLength = Number(res.headers.get('content-length'));
-  if (Number.isFinite(contentLength) && contentLength > MAX_NAMED_DOWNLOAD_BYTES) {
+  const contentLengthRaw = Number(res.headers.get('content-length'));
+  const totalBytes =
+    Number.isFinite(contentLengthRaw) && contentLengthRaw > 0 ? contentLengthRaw : null;
+  if (totalBytes !== null && totalBytes > MAX_NAMED_DOWNLOAD_BYTES) {
     await res.body?.cancel().catch(() => {});
     return false;
   }
 
+  // Extension comes from the response Content-Type (a stream-built Blob has no
+  // type), falling back to the URL.
+  const contentType = (res.headers.get('content-type') || '').split(';')[0]?.trim() ?? '';
+
+  let streamed: ReadableStream<Uint8Array<ArrayBufferLike>> | null = res.body;
+  if (res.body && onProgress) {
+    let received = 0;
+    let lastMarker = -1;
+    const counter = new TransformStream<Uint8Array<ArrayBufferLike>, Uint8Array<ArrayBufferLike>>({
+      transform(chunk, controller) {
+        received += chunk.byteLength;
+        // Safety net for streams without a Content-Length.
+        if (received > MAX_NAMED_DOWNLOAD_BYTES) {
+          controller.error(new Error('File exceeds the in-memory download limit'));
+          return;
+        }
+        // Throttle: emit on each whole-percent change (or per ~2 MB if unknown).
+        const marker = totalBytes
+          ? Math.floor((received / totalBytes) * 100)
+          : Math.floor(received / (2 * 1024 * 1024));
+        if (marker !== lastMarker) {
+          lastMarker = marker;
+          onProgress({ receivedBytes: received, totalBytes });
+        }
+        controller.enqueue(chunk);
+      },
+    });
+    streamed = res.body.pipeThrough(counter);
+  }
+
   let blob: Blob;
   try {
-    blob = await res.blob();
+    blob = streamed ? await new Response(streamed).blob() : await res.blob();
   } catch {
     return false;
   }
 
-  const mimeExt = MIME_EXTENSION_MAP[blob.type];
+  const mimeExt = MIME_EXTENSION_MAP[contentType];
   saveBlobAs(blob, mimeExt ? replaceExtension(fileName, mimeExt) : fileName);
   return true;
 }

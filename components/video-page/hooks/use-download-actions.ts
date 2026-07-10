@@ -10,7 +10,12 @@ import type {
   VideoData,
 } from '@/components/video-page/types';
 import { resolvePublicBunnyCdnHostname } from '@/lib/bunny-cdn';
-import { downloadNamedFile, extensionFromUrl, navigateDownload } from '@/lib/client/download-file';
+import {
+  downloadNamedFile,
+  downloadProgressLabel,
+  extensionFromUrl,
+  navigateDownload,
+} from '@/lib/client/download-file';
 
 function sanitizeDownloadFileName(value: string): string {
   return value
@@ -143,8 +148,25 @@ export function useDownloadActions({ activeVersion, video }: UseDownloadActionsP
             (activeVersion.providerId === 'direct'
               ? extensionFromUrl(activeVersion.originalUrl)
               : '') || 'mp4';
-          const saved = await downloadNamedFile(downloadUrl, `${baseName}.${fallbackExt}`);
-          if (!saved) {
+
+          // The file is pulled into the browser before it can be saved, which on
+          // a big file / slow connection takes a while with no native download UI
+          // — show live progress so it doesn't look stuck.
+          const toastId = `download-${activeVersion.id}`;
+          toast.loading(`Downloading “${baseName}”…`, { id: toastId, duration: Infinity });
+          const saved = await downloadNamedFile(downloadUrl, `${baseName}.${fallbackExt}`, (p) => {
+            toast.loading(`Downloading “${baseName}”`, {
+              id: toastId,
+              description: downloadProgressLabel(p),
+              duration: Infinity,
+            });
+          });
+          if (saved) {
+            toast.success(`“${baseName}” downloaded`, { id: toastId, duration: 4000 });
+          } else {
+            // Too large to buffer (or fetch blocked): let the browser download it
+            // directly (its own progress UI, CDN filename).
+            toast.dismiss(toastId);
             navigateDownload(downloadUrl);
           }
         }

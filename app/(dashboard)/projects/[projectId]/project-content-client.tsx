@@ -222,9 +222,26 @@ export function ProjectContentClient({
           return;
         }
 
-        toast.info(`Starting download of ${manifest.totalFiles} files…`);
-        await runProjectDownloadManifest(manifest);
-        toast.success(`Started ${manifest.totalFiles} file downloads`);
+        const downloadToastId = `project-download-${projectId}`;
+        toast.loading(`Downloading ${manifest.totalFiles} files…`, {
+          id: downloadToastId,
+          duration: Infinity,
+        });
+        await runProjectDownloadManifest(manifest, (p) => {
+          const pct =
+            p.totalBytes && p.totalBytes > 0
+              ? ` · ${Math.min(100, Math.floor((p.receivedBytes / p.totalBytes) * 100))}%`
+              : '';
+          toast.loading(`Downloading file ${p.index}/${p.total}`, {
+            id: downloadToastId,
+            description: `${p.fileName}${pct}`,
+            duration: Infinity,
+          });
+        });
+        toast.success(`Downloaded ${manifest.totalFiles} files`, {
+          id: downloadToastId,
+          duration: 4000,
+        });
       } catch {
         toast.error('Failed to start project download');
       } finally {
