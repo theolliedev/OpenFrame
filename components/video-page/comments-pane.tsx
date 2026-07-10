@@ -587,7 +587,7 @@ export const CommentsPane = memo(function CommentsPane({
                     ) : (
                       <div className="mb-2">
                         {comment.content && (
-                          <p className="text-sm mb-2">
+                          <p className="text-sm mb-2 whitespace-pre-wrap break-words">
                             <CommentRichText
                               text={comment.content}
                               onAssetMentionClick={onAssetMentionClick}
@@ -793,7 +793,7 @@ export const CommentsPane = memo(function CommentsPane({
                               ) : (
                                 <div className="mb-1">
                                   {reply.content && (
-                                    <p className="text-sm">
+                                    <p className="text-sm whitespace-pre-wrap break-words">
                                       <CommentRichText
                                         text={reply.content}
                                         onAssetMentionClick={onAssetMentionClick}
