@@ -193,7 +193,7 @@ export async function POST(request: NextRequest) {
       const fromAddress =
         process.env.SMTP_FROM ||
         process.env.EMAIL_FROM ||
-        'OpenFrame <notifications@openframe.app>';
+        'OpenFrame <info@open-frame.net>';
 
       try {
         await transporter.sendMail({

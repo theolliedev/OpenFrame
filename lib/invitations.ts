@@ -68,7 +68,7 @@ export async function sendInvitationEmail(input: {
   }
 
   const fromAddress =
-    process.env.SMTP_FROM || process.env.EMAIL_FROM || 'OpenFrame <notifications@openframe.app>';
+    process.env.SMTP_FROM || process.env.EMAIL_FROM || 'OpenFrame <info@open-frame.net>';
   const subject = `[OpenFrame] You were invited to a ${scopeLabel(input.scope)}: ${input.targetName}`;
   const html = invitationEmailTemplate({
     inviterName: input.inviterName,

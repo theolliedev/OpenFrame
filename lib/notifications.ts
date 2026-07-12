@@ -84,7 +84,7 @@ function createSmtpTransport() {
 async function sendEmail(to: string, subject: string, html: string): Promise<boolean> {
   const transporter = createSmtpTransport();
   const fromAddress =
-    process.env.SMTP_FROM || process.env.EMAIL_FROM || 'OpenFrame <notifications@openframe.app>';
+    process.env.SMTP_FROM || process.env.EMAIL_FROM || 'OpenFrame <info@open-frame.net>';
 
   if (!transporter) {
     console.warn('SMTP not configured — skipping email notification');

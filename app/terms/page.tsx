@@ -150,7 +150,8 @@ export default function TermsOfServicePage() {
               <li>Interfere with or disrupt the integrity or performance of the Service.</li>
               <li>
                 Reverse engineer, decompile, or attempt to extract the source code of the Service
-                (except where permitted by applicable open-source licenses).
+                (except where permitted by the applicable source license, such as the Functional
+                Source License covering the platform code).
               </li>
               <li>Use the Service to send spam or unsolicited communications.</li>
               <li>
@@ -174,8 +175,11 @@ export default function TermsOfServicePage() {
               intellectual property laws.
             </p>
             <p className="mt-3">
-              The core platform code is made available as open-source software; please refer to the
-              applicable license in the GitHub repository for details on permitted use.
+              The core platform code is made available under the Functional Source License
+              (FSL-1.1-ALv2): the source code is publicly available and may be self-hosted, and
+              each release becomes available under the Apache 2.0 license two years after its
+              publication. Please refer to the license in the GitHub repository for details on
+              permitted use.
             </p>
           </section>
 

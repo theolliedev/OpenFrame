@@ -208,6 +208,10 @@ bun run check
 
 Feature flags and self-hosting environment variables are documented in `.env.example` and `.env.docker.example`.
 
+## License
+
+OpenFrame is Fair Source, licensed under the [Functional Source License](https://fsl.software/) (FSL-1.1-ALv2). The full source code is publicly available, you can self-host it, and every release automatically becomes Apache 2.0 open source two years after its publication. See [LICENCE](LICENCE) for the full terms.
+
 ## Contributing
 
 Contributions are welcome.
@@ -215,3 +219,4 @@ Contributions are welcome.
 - Read [CONTRIBUTING.md](CONTRIBUTING.md) for workflow, conventions, and PR requirements.
 - Use [SECURITY.md](SECURITY.md) for responsible vulnerability reporting.
 - Follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) in all project interactions.
+- Contact: [info@open-frame.net](mailto:info@open-frame.net)

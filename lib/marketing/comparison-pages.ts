@@ -202,7 +202,7 @@ export const comparisonPages: ComparisonPageDefinition[] = [
     title: 'Frame.io Alternative for Small Teams',
     metaDescription:
       'Compare OpenFrame vs Frame.io for freelancers and small teams. Get timestamped review, approvals, guest links, and self-hosting without per-seat enterprise pricing.',
-    keywords: ['frame.io alternative', 'frame io alternative', 'open source frame.io alternative'],
+    keywords: ['frame.io alternative', 'frame io alternative', 'fair source frame.io alternative'],
     headline: 'Frame.io power without the enterprise bill',
     subheadline:
       'Frame.io is the industry standard for large post teams. OpenFrame gives freelancers and small studios the review workflow they actually need: one link, one timeline, clear approvals, and optional self-hosting.',
@@ -249,7 +249,7 @@ export const comparisonPages: ComparisonPageDefinition[] = [
     keywords: [
       'self hosted frame.io alternative',
       'self-hosted video review',
-      'open source video review',
+      'fair source video review',
     ],
     eyebrow: 'Self-hosted review',
     headline: 'Keep client footage on your infrastructure',
@@ -270,7 +270,7 @@ export const comparisonPages: ComparisonPageDefinition[] = [
     bestForOpenFrame: [
       'Teams with Docker ops capacity',
       'Privacy-sensitive client work',
-      'Studios comparing Frame.io to open/fair-source options',
+      'Studios comparing Frame.io to fair-source options',
     ],
     bestForCompetitor: [
       'Teams needing Adobe enterprise integrations out of the box',
@@ -297,7 +297,7 @@ export const comparisonPages: ComparisonPageDefinition[] = [
       { label: 'Version compare', openframe: 'yes', competitor: 'yes' },
       { label: 'Enterprise DRM / SSO', openframe: 'no', competitor: 'yes' },
       { label: 'Adobe NLE integrations', openframe: 'no', competitor: 'yes' },
-      { label: 'Open/fair-source codebase', openframe: 'yes', competitor: 'no' },
+      { label: 'Fair-source codebase', openframe: 'yes', competitor: 'no' },
     ],
     pricingRows: [
       { label: 'Self-hosted software cost', openframe: 'Free', competitor: 'Not available' },

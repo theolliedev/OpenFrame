@@ -1,4 +1,4 @@
-const FALLBACK_SITE_URL = 'https://openframe.net';
+const FALLBACK_SITE_URL = 'https://open-frame.net';
 
 function normalizeSiteUrl(rawUrl: string | undefined): string {
   if (!rawUrl) {
@@ -26,11 +26,12 @@ export function getSiteUrl(): string {
 
 export const seoConfig = {
   name: 'OpenFrame',
-  title: 'Open Source Video Review Platform',
+  title: 'Fair Source Video Review Platform',
   description:
-    'OpenFrame is an open source video review platform for collecting timestamped feedback with text and voice comments.',
+    'OpenFrame is a fair source video review platform for collecting timestamped feedback with text and voice comments.',
   keywords: [
-    'open source video review platform',
+    'fair source video review platform',
+    'video review platform',
     'video review tool',
     'timestamped video feedback',
     'video collaboration',

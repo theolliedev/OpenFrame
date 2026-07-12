@@ -234,14 +234,14 @@ export function LandingPage({ isLoggedIn }: LandingPageProps) {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-primary"></span>
               </span>
-              <span className="font-mono tracking-wide uppercase">Open Source Video Review</span>
+              <span className="font-mono tracking-wide uppercase">Fair Source Video Review</span>
             </div>
 
             <h1
               data-hero-copy
               className="text-4xl font-semibold leading-[0.95] tracking-[-0.03em] sm:text-5xl md:text-6xl lg:text-7xl"
             >
-              Cut Video Approval Time in Half. <br className="hidden md:block" />
+              Get Client Sign-off From One Link. <br className="hidden md:block" />
               <span className="text-muted-foreground">Stop Chasing Timecodes.</span>
             </h1>
 
@@ -249,27 +249,35 @@ export function LandingPage({ isLoggedIn }: LandingPageProps) {
               data-hero-copy
               className="mx-auto max-w-2xl text-base text-muted-foreground md:text-xl"
             >
-              OpenFrame puts comments, voice notes, and annotations on a single timeline so clients
-              say &quot;yes&quot; faster and your team stops guessing.
+              Hosted video review for editors, agencies, and small studios. Comments, voice notes,
+              and annotations land on one timeline — clients review in the browser, no account
+              needed.
             </p>
 
             <div
               data-hero-copy
-              className="mx-auto flex max-w-md flex-col items-center justify-center gap-2"
+              className="mx-auto flex max-w-md flex-col items-center justify-center gap-3"
             >
               <Link
                 href={hostedCtaHref}
                 className="group relative isolate inline-flex h-12 min-w-max items-center justify-center overflow-hidden border border-primary bg-primary px-10 text-sm font-medium whitespace-nowrap text-primary-foreground transition-transform duration-300 hover:scale-[1.02]"
               >
-                Start free
+                Start free trial
                 <MoveRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
 
+              <p className="text-xs text-muted-foreground">
+                7-day free trial · Flat $10/mo — no per-seat fees · No client accounts
+              </p>
+
               <a
-                href="#pricing"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                href="https://github.com/yusufipk/OpenFrame"
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs font-medium text-muted-foreground/70 transition-colors hover:text-foreground"
               >
-                Prefer self-hosting? <ArrowRight className="ml-1 inline h-3.5 w-3.5" />
+                Prefer self-hosting? View on GitHub{' '}
+                <ArrowRight className="ml-1 inline h-3 w-3" />
               </a>
             </div>
           </div>
@@ -644,70 +652,33 @@ export function LandingPage({ isLoggedIn }: LandingPageProps) {
                 className="text-3xl font-semibold md:text-5xl text-foreground"
                 style={{ fontFamily: 'monospace', letterSpacing: '-0.02em' }}
               >
-                Deploy it yourself - or let us run it for you.
+                Let us run it for you - or deploy it yourself.
               </h2>
             </div>
 
             <div className="grid gap-6 md:grid-cols-3">
-              {/* Card 1: Open Source */}
-              <div
-                data-reveal
-                className="relative flex flex-col border border-border/40 bg-[#141414] p-8"
-              >
-                <div className="mb-6">
-                  <h3 className="text-xl font-semibold text-foreground">
-                    Open Source (Self-hosted)
-                  </h3>
-                </div>
-
-                <div className="mb-8 flex items-baseline gap-2">
-                  <span className="text-3xl font-semibold text-[#06b6d4]">Free</span>
-                </div>
-                <p className="mb-8 text-sm text-muted-foreground">
-                  For teams who want full control and can run their own infrastructure.
-                </p>
-
-                <ul className="mb-8 flex-1 space-y-4 text-sm text-foreground/80">
-                  <li className="flex items-center gap-3">
-                    <CheckSquare className="h-4 w-4 text-[#06b6d4]" />
-                    Full codebase access
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckSquare className="h-4 w-4 text-[#06b6d4]" />
-                    Self-hosted infrastructure control
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckSquare className="h-4 w-4 text-[#06b6d4]" />
-                    Manual update cadence
-                  </li>
-                </ul>
-
-                <a
-                  href="https://github.com/yusufipk/OpenFrame"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-auto group relative isolate inline-flex h-12 w-full items-center justify-center overflow-hidden border border-border/50 bg-[#0a0a0a] font-medium text-foreground transition-colors hover:bg-white/5 text-sm"
-                >
-                  <Github className="mr-2 h-4 w-4" /> View on GitHub
-                </a>
-              </div>
-
-              {/* Card 2: Hosted Cloud */}
+              {/* Card 1: Hosted Cloud (recommended) */}
               <div
                 data-reveal
                 className="relative flex flex-col border border-[#06b6d4]/40 bg-[#141414] p-8"
               >
+                <span className="absolute -top-3 left-8 bg-[#06b6d4] px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-widest text-black">
+                  Recommended
+                </span>
                 <div className="mb-6">
                   <p className="font-mono text-[10px] uppercase font-semibold text-muted-foreground tracking-widest mb-4">
-                    Best for teams who want zero setup.
+                    Zero setup. Flat pricing, no per-seat fees.
                   </p>
                   <h3 className="text-xl font-semibold text-foreground">Hosted Cloud</h3>
                 </div>
 
-                <div className="mb-6 flex items-baseline gap-2">
+                <div className="mb-2 flex items-baseline gap-2">
                   <span className="text-3xl font-semibold text-[#06b6d4]">$10</span>
                   <span className="text-[#06b6d4]">/ month</span>
                 </div>
+                <p className="mb-6 text-sm text-muted-foreground">
+                  Starts with a 7-day free trial. Cancel anytime.
+                </p>
 
                 <ul className="mb-8 flex-1 space-y-4 text-sm text-foreground/80">
                   <li className="flex items-start gap-3">
@@ -751,8 +722,61 @@ export function LandingPage({ isLoggedIn }: LandingPageProps) {
                   href={hostedCtaHref}
                   className="mt-auto group relative isolate inline-flex h-12 w-full items-center justify-center overflow-hidden bg-[#06b6d4] font-medium text-black transition-colors hover:bg-[#06b6d4]/90 text-sm"
                 >
-                  Start free
+                  Start free trial
                 </Link>
+              </div>
+
+              {/* Card 2: Fair Source (Self-hosted) */}
+              <div
+                data-reveal
+                className="relative flex flex-col border border-border/40 bg-[#141414] p-8"
+              >
+                <div className="mb-6">
+                  <h3 className="text-xl font-semibold text-foreground">
+                    Fair Source (Self-hosted)
+                  </h3>
+                </div>
+
+                <div className="mb-8 flex items-baseline gap-2">
+                  <span className="text-3xl font-semibold text-[#06b6d4]">Free</span>
+                </div>
+                <p className="mb-8 text-sm text-muted-foreground">
+                  For teams who want full control and can run their own infrastructure. Licensed
+                  under the{' '}
+                  <a
+                    href="https://fsl.software/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline underline-offset-2 hover:text-foreground"
+                  >
+                    Functional Source License
+                  </a>
+                  .
+                </p>
+
+                <ul className="mb-8 flex-1 space-y-4 text-sm text-foreground/80">
+                  <li className="flex items-start gap-3">
+                    <CheckSquare className="mt-0.5 h-4 w-4 shrink-0 text-[#06b6d4]" />
+                    Full source code — read it, audit it
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckSquare className="mt-0.5 h-4 w-4 shrink-0 text-[#06b6d4]" />
+                    Self-host on your own infrastructure
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <CheckSquare className="mt-0.5 h-4 w-4 shrink-0 text-[#06b6d4]" />
+                    Every release becomes Apache 2.0 open source after two years
+                  </li>
+                </ul>
+
+                <a
+                  href="https://github.com/yusufipk/OpenFrame"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-auto group relative isolate inline-flex h-12 w-full items-center justify-center overflow-hidden border border-border/50 bg-[#0a0a0a] font-medium text-foreground transition-colors hover:bg-white/5 text-sm"
+                >
+                  <Github className="mr-2 h-4 w-4" /> View on GitHub
+                </a>
               </div>
 
               {/* Card 3: Studio & Agency */}
@@ -775,7 +799,7 @@ export function LandingPage({ isLoggedIn }: LandingPageProps) {
                 </p>
 
                 <a
-                  href="mailto:support@openframe.com"
+                  href="mailto:info@open-frame.net"
                   className="group relative isolate inline-flex h-12 w-full items-center justify-center overflow-hidden bg-[#0a0a0a] font-medium text-foreground transition-colors hover:bg-white/5 border border-border/50 text-sm"
                 >
                   Contact us
@@ -823,7 +847,15 @@ export function LandingPage({ isLoggedIn }: LandingPageProps) {
                   },
                   {
                     q: 'Can I self-host?',
-                    a: 'Yes. The core is open-source and self-hostable. Hosted Cloud is for teams who want zero setup.',
+                    a: 'Yes. The full source code is public and ships with a Docker setup for self-hosting. Hosted Cloud is for teams who want zero setup.',
+                  },
+                  {
+                    q: 'Is OpenFrame open source?',
+                    a: 'OpenFrame is Fair Source, licensed under the Functional Source License (FSL). You can read and audit the full source code and self-host it, and every release automatically becomes Apache 2.0 open source two years after publication.',
+                  },
+                  {
+                    q: 'Is there a free trial?',
+                    a: 'Yes. Hosted Cloud starts with a 7-day free trial. After that it is a flat $10/mo — no per-seat or per-client fees.',
                   },
                   {
                     q: 'How is this different from sending a Google Drive link?',
@@ -874,7 +906,7 @@ export function LandingPage({ isLoggedIn }: LandingPageProps) {
               href={hostedCtaHref}
               className="group relative isolate inline-flex h-12 min-w-max items-center justify-center overflow-hidden border border-primary bg-primary px-10 text-sm font-medium whitespace-nowrap text-primary-foreground transition-transform duration-300 hover:scale-[1.02] md:min-w-[240px]"
             >
-              Start free
+              Start free trial
             </Link>
           </div>
         </section>

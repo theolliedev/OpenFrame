@@ -565,7 +565,7 @@ export const openFrameProfile = {
   ],
   bestFor: [
     'Freelancers and small teams shipping client cuts',
-    'Studios that want open/fair-source and optional self-hosting',
+    'Studios that want fair-source licensing and optional self-hosting',
     'Teams tired of vague email and WhatsApp feedback',
   ],
 };
