@@ -21,6 +21,8 @@ COPY postcss.config.mjs ./postcss.config.mjs
 COPY prisma.config.ts ./prisma.config.ts
 COPY tsconfig.json ./tsconfig.json
 ENV NODE_ENV=production
+ARG NEXT_PUBLIC_APP_URL
+ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 RUN bun run db:generate
 RUN bun run build
 

@@ -49,7 +49,6 @@ wait_for_http() {
 }
 
 wait_for_tcp "$DB_HOST" "$DB_PORT" "Postgres"
-wait_for_http "$MINIO_HEALTHCHECK_URL" "MinIO"
 
 echo "Bootstrapping database"
 bun run scripts/docker-db-bootstrap.ts
